@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.checkerframework.common.aliasing.qual.LeakedToResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,8 @@ import it.unimi.dsi.webgraph.ArrayListMutableGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 
-/** Computes the betweenness centrality using an implementation of Brandes's algorithm
+/**
+ * Computes the betweenness centrality using an implementation of Brandes's algorithm
  * (Ulrik Brandes, &ldquo;A Faster Algorithm for Betweenness Centrality&rdquo;, <i>Journal of
  * Mathematical Sociology</i> 25(2):163&minus;177, 2001)
  * that uses multiple parallel breadth-first visits.
@@ -79,9 +81,12 @@ import it.unimi.dsi.webgraph.LazyIntIterator;
 public class BetweennessCentrality {
     private final static Logger LOGGER = LoggerFactory.getLogger(BetweennessCentrality.class);
 
-    /** An exception telling that the path count exceeded 64-bit integer arithmetic. */
+    /**
+     * An exception telling that the path count exceeded 64-bit integer arithmetic.
+     */
     public static final class PathCountOverflowException extends RuntimeException {
-        public PathCountOverflowException() {}
+        public PathCountOverflowException() {
+        }
 
         public PathCountOverflowException(final String s) {
             super(s);
@@ -90,24 +95,37 @@ public class BetweennessCentrality {
         private static final long serialVersionUID = 1L;
     }
 
-    /** The graph under examination. */
+    /**
+     * The graph under examination.
+     */
     private final ImmutableGraph graph;
-    /** The global progress logger. */
+    /**
+     * The global progress logger.
+     */
     private final ProgressLogger pl;
-    /** The number of threads. */
+    /**
+     * The number of threads.
+     */
     private final int numberOfThreads;
-    /** The next node to be visited. */
+    /**
+     * The next node to be visited.
+     */
     protected final AtomicInteger nextNode;
-    /** Whether to stop abruptly the visiting process. */
+    /**
+     * Whether to stop abruptly the visiting process.
+     */
     protected volatile boolean stop;
-    /** The array of betweenness value. */
+    /**
+     * The array of betweenness value.
+     */
     public final double[] betweenness;
 
-    /** Creates a new class for computing betweenness centrality.
+    /**
+     * Creates a new class for computing betweenness centrality.
      *
-     * @param graph a graph.
+     * @param graph            a graph.
      * @param requestedThreads the requested number of threads (0 for {@link Runtime#availableProcessors()}).
-     * @param pl a progress logger, or {@code null}.
+     * @param pl               a progress logger, or {@code null}.
      */
     public BetweennessCentrality(final ImmutableGraph graph, final int requestedThreads, final ProgressLogger pl) {
         this.pl = pl;
@@ -117,27 +135,30 @@ public class BetweennessCentrality {
         numberOfThreads = requestedThreads != 0 ? requestedThreads : Runtime.getRuntime().availableProcessors();
     }
 
-    /** Creates a new class for computing betweenness centrality, using as many threads as
-     *  the number of available processors.
+    /**
+     * Creates a new class for computing betweenness centrality, using as many threads as
+     * the number of available processors.
      *
      * @param graph a graph.
-     * @param pl a progress logger, or {@code null}.
+     * @param pl    a progress logger, or {@code null}.
      */
     public BetweennessCentrality(final ImmutableGraph graph, final ProgressLogger pl) {
         this(graph, 0, pl);
     }
 
-    /** Creates a new class for computing betweenness centrality.
+    /**
+     * Creates a new class for computing betweenness centrality.
      *
-     * @param graph a graph.
+     * @param graph            a graph.
      * @param requestedThreads the requested number of threads (0 for {@link Runtime#availableProcessors()}).
      */
     public BetweennessCentrality(final ImmutableGraph graph, final int requestedThreads) {
         this(graph, 1, null);
     }
 
-    /** Creates a new class for computing betweenness centrality, using as many threads as
-     *  the number of available processors.
+    /**
+     * Creates a new class for computing betweenness centrality, using as many threads as
+     * the number of available processors.
      *
      * @param graph a graph.
      */
@@ -146,16 +167,21 @@ public class BetweennessCentrality {
     }
 
     private final class IterationThread implements Callable<Void> {
-        /** The queue of visited nodes. */
+        /**
+         * The queue of visited nodes.
+         */
         private final IntArrayList queue;
-        /** At the end of a visit, the cutpoints of {@link #queue}. The <var>d</var>-th cutpoint is the first node in the queue at distance <var>d</var>. The
-         * last cutpoint is the queue size. */
-        private final IntArrayList cutPoints;
-        /** The array containing the distance of each node from the current source (or -1 if the node has not yet been reached by the visit). */
+        /**
+         * The array containing the distance of each node from the current source (or -1 if the node has not yet been reached by the visit).
+         */
         private final int[] distance;
-        /** The array containing the values of &sigma; incremented for each parent/child pair during each visit, as explained in Brandes's algorithm. */
+        /**
+         * The array containing the values of &sigma; incremented for each parent/child pair during each visit, as explained in Brandes's algorithm.
+         */
         private final long[] sigma;
-        /** The array of dependencies (computed at the end of each visit). */
+        /**
+         * The array of dependencies (computed at the end of each visit).
+         */
         private final double[] delta;
 
         private IterationThread() {
@@ -163,11 +189,11 @@ public class BetweennessCentrality {
             this.sigma = new long[graph.numNodes()];
             this.delta = new double[graph.numNodes()];
             this.queue = new IntArrayList(graph.numNodes());
-            this.cutPoints = new IntArrayList();
         }
 
         private boolean checkOverflow(final long[] sigma, final int node, final long currSigma, final int s) {
-            if (sigma[s] > Long.MAX_VALUE - currSigma) throw new PathCountOverflowException(sigma[s] + " > " + (Long.MAX_VALUE - currSigma) + " (" + node + " -> " + s + ")");
+            if (sigma[s] > Long.MAX_VALUE - currSigma)
+                throw new PathCountOverflowException(sigma[s] + " > " + (Long.MAX_VALUE - currSigma) + " (" + node + " -> " + s + ")");
             return true;
         }
 
@@ -180,66 +206,54 @@ public class BetweennessCentrality {
             final IntArrayList queue = this.queue;
             final ImmutableGraph graph = BetweennessCentrality.this.graph.copy();
 
-            for(;;) {
+            for (; ; ) {
                 final int curr = nextNode.getAndIncrement();
                 if (BetweennessCentrality.this.stop || curr >= graph.numNodes()) return null;
                 queue.clear();
                 queue.add(curr);
-                cutPoints.clear();
-                cutPoints.add(0);
                 Arrays.fill(distance, -1);
                 Arrays.fill(sigma, 0);
                 distance[curr] = 0;
                 sigma[curr] = 1;
                 boolean overflow = false;
 
-                int d;
-                for(d = 0; queue.size() != cutPoints.getInt(cutPoints.size() - 1); d++) {
-                    cutPoints.add(queue.size());
-                    final int start = cutPoints.getInt(d);
-                    final int end = cutPoints.getInt(d + 1);
-
-                    for(int pos = start; pos < end; pos++) {
-                        final int node = queue.getInt(pos);
-                        final long currSigma = sigma[node];
-                        final LazyIntIterator successors = graph.successors(node);
-                        for(int s; (s = successors.nextInt()) != -1;) {
-                            if (distance[s] == -1) {
-                                distance[s] = d + 1;
-                                delta[s] = 0;
-                                queue.add(s);
-                                assert checkOverflow(sigma, node, currSigma, s);
-                                overflow |= sigma[s] > Long.MAX_VALUE - currSigma;
-                                sigma[s] += currSigma;
-                            }
-                            else if (distance[s] == d + 1) {
-                                assert checkOverflow(sigma, node, currSigma, s);
-                                overflow |= sigma[s] > Long.MAX_VALUE - currSigma;
-                                sigma[s] += currSigma;
-                            }
+                for (int i = 0; queue.size() != i; i++) {
+                    final int node = queue.getInt(i);
+                    final int d = distance[node];
+                    assert(d != -1);
+                    final long currSigma = sigma[node];
+                    final LazyIntIterator successors = graph.successors(node);
+                    for (int s; (s = successors.nextInt()) != -1; ) {
+                        if (distance[s] == -1) {
+                            distance[s] = d + 1;
+                            delta[s] = 0;
+                            queue.add(s);
+                            assert checkOverflow(sigma, node, currSigma, s);
+                            overflow |= sigma[s] > Long.MAX_VALUE - currSigma;
+                            sigma[s] += currSigma;
+                        } else if (distance[s] == d + 1) {
+                            assert checkOverflow(sigma, node, currSigma, s);
+                            overflow |= sigma[s] > Long.MAX_VALUE - currSigma;
+                            sigma[s] += currSigma;
                         }
                     }
                 }
 
                 if (overflow) throw new PathCountOverflowException();
 
-                while(--d > 0) {
-                    final int start = cutPoints.getInt(d);
-                    final int end = cutPoints.getInt(d + 1);
+                for (int pos = queue.size() - 2; pos > 0; pos--) { // Starting at size - 2 since the nodes at max distance do not have successors at distance + 1 
+                    final int node = queue.getInt(pos);
+                    final int d = distance[node];
+                    final double sigmaNode = sigma[node];
+                    final LazyIntIterator succ = graph.successors(node);
+                    for (int s; (s = succ.nextInt()) != -1; )
+                        if (distance[s] == d + 1) delta[node] += (1 + delta[s]) * sigmaNode / sigma[s];
+                }
 
-                    for(int pos = start; pos < end; pos++) {
+                synchronized (BetweennessCentrality.this) {
+                    for (int pos = queue.size() - 1; pos > 0; pos--) {
                         final int node = queue.getInt(pos);
-                        final double sigmaNode = sigma[node];
-                        final LazyIntIterator succ = graph.successors(node);
-                        for(int s; (s = succ.nextInt()) != -1;)
-                            if (distance[s] == d + 1) delta[node] += (1 + delta[s]) * sigmaNode / sigma[s];
-                    }
-
-                    synchronized (BetweennessCentrality.this) {
-                        for(int pos = start; pos < end; pos++) {
-                            final int node = queue.getInt(pos);
-                            betweenness[node] += delta[node];
-                        }
+                        betweenness[node] += delta[node];
                     }
                 }
 
@@ -252,10 +266,12 @@ public class BetweennessCentrality {
     }
 
 
-    /** Computes betweenness centrality. Results can be found in {@link BetweennessCentrality#betweenness}. */
+    /**
+     * Computes betweenness centrality. Results can be found in {@link BetweennessCentrality#betweenness}.
+     */
     public void compute() throws InterruptedException {
         final IterationThread[] thread = new IterationThread[numberOfThreads];
-        for(int i = 0; i < thread.length; i++) thread[i] = new IterationThread();
+        for (int i = 0; i < thread.length; i++) thread[i] = new IterationThread();
 
         if (pl != null) {
             pl.start("Starting visits...");
@@ -266,17 +282,15 @@ public class BetweennessCentrality {
         final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         final ExecutorCompletionService<Void> executorCompletionService = new ExecutorCompletionService<>(executorService);
 
-        for(int i = thread.length; i-- != 0;) executorCompletionService.submit(thread[i]);
+        for (int i = thread.length; i-- != 0; ) executorCompletionService.submit(thread[i]);
 
         try {
-            for(int i = thread.length; i-- != 0;) executorCompletionService.take().get();
-        }
-        catch(final ExecutionException e) {
+            for (int i = thread.length; i-- != 0; ) executorCompletionService.take().get();
+        } catch (final ExecutionException e) {
             stop = true;
             final Throwable cause = e.getCause();
-            throw cause instanceof RuntimeException ? (RuntimeException)cause : new RuntimeException(cause.getMessage(), cause);
-        }
-        finally {
+            throw cause instanceof RuntimeException ? (RuntimeException) cause : new RuntimeException(cause.getMessage(), cause);
+        } finally {
             executorService.shutdown();
         }
 
@@ -287,7 +301,7 @@ public class BetweennessCentrality {
     public static void main(final String[] arg) throws IOException, InterruptedException, JSAPException {
 
         final SimpleJSAP jsap = new SimpleJSAP(BetweennessCentrality.class.getName(), "Computes the betweenness centrality a graph using an implementation of Brandes's algorithm based on multiple parallel breadth-first visits.",
-                new Parameter[] {
+                new Parameter[]{
                         new Switch("expand", 'e', "expand", "Expand the graph to increase speed (no compression)."),
                         new Switch("mapped", 'm', "mapped", "Use loadMapped() to load the graph."),
                         new FlaggedOption("threads", JSAP.INTSIZE_PARSER, "0", JSAP.NOT_REQUIRED, 'T', "threads", "The number of threads to be used. If 0, the number will be estimated automatically."),
@@ -307,7 +321,7 @@ public class BetweennessCentrality {
         progressLogger.displayFreeMemory = true;
         progressLogger.displayLocalSpeed = true;
 
-        ImmutableGraph graph = mapped? ImmutableGraph.loadMapped(graphBasename, progressLogger) : ImmutableGraph.load(graphBasename, progressLogger);
+        ImmutableGraph graph = mapped ? ImmutableGraph.loadMapped(graphBasename, progressLogger) : ImmutableGraph.load(graphBasename, progressLogger);
         if (jsapResult.userSpecified("expand")) graph = new ArrayListMutableGraph(graph).immutableView();
 
         final BetweennessCentrality betweennessCentralityMultipleVisits = new BetweennessCentrality(graph, threads, progressLogger);
