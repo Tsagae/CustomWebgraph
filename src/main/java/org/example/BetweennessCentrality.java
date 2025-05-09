@@ -220,7 +220,7 @@ public class BetweennessCentrality {
                 for (int i = 0; queue.size() != i; i++) {
                     final int node = queue.getInt(i);
                     final int d = distance[node];
-                    assert(d != -1);
+                    assert (d != -1);
                     final long currSigma = sigma[node];
                     final LazyIntIterator successors = graph.successors(node);
                     for (int s; (s = successors.nextInt()) != -1; ) {
@@ -241,8 +241,8 @@ public class BetweennessCentrality {
 
                 if (overflow) throw new PathCountOverflowException();
 
-                for (int pos = queue.size() - 2; pos > 0; pos--) { // Starting at size - 2 since the nodes at max distance do not have successors at distance + 1 
-                    final int node = queue.getInt(pos);
+                for (int i = queue.size() - 1; i > 0; i--) { 
+                    final int node = queue.getInt(i);
                     final int d = distance[node];
                     final double sigmaNode = sigma[node];
                     final LazyIntIterator succ = graph.successors(node);
@@ -251,8 +251,8 @@ public class BetweennessCentrality {
                 }
 
                 synchronized (BetweennessCentrality.this) {
-                    for (int pos = queue.size() - 1; pos > 0; pos--) {
-                        final int node = queue.getInt(pos);
+                    for (int i = queue.size() - 1; i > 0; i--) {
+                        final int node = queue.getInt(i);
                         betweenness[node] += delta[node];
                     }
                 }
