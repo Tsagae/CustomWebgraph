@@ -231,8 +231,10 @@ public class BetweennessCentrality {
                         final int node = queue.getInt(pos);
                         final double sigmaNode = sigma[node];
                         final LazyIntIterator succ = graph.successors(node);
-                        for(int s; (s = succ.nextInt()) != -1;)
+                        for(int s; (s = succ.nextInt()) != -1;) {
                             if (distance[s] == d + 1) delta[node] += (1 + delta[s]) * sigmaNode / sigma[s];
+                            System.out.printf("%g\n", delta[s]);
+                        }
                     }
 
                     synchronized (BetweennessCentrality.this) {
@@ -247,6 +249,8 @@ public class BetweennessCentrality {
                     synchronized (BetweennessCentrality.this.pl) {
                         BetweennessCentrality.this.pl.update();
                     }
+                
+                return null;
             }
         }
     }
