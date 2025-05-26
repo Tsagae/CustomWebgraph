@@ -181,7 +181,7 @@ public class BetweennessCentrality {
             final ImmutableGraph graph = BetweennessCentrality.this.graph.copy();
 
             for(;;) {
-                final int curr = nextNode.getAndIncrement();
+                final int curr = 1;
                 if (BetweennessCentrality.this.stop || curr >= graph.numNodes()) return null;
                 queue.clear();
                 queue.add(curr);
