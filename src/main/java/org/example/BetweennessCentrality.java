@@ -233,7 +233,7 @@ public class BetweennessCentrality {
                         final LazyIntIterator succ = graph.successors(node);
                         for(int s; (s = succ.nextInt()) != -1;) {
                             if (distance[s] == d + 1) delta[node] += (1 + delta[s]) * sigmaNode / sigma[s];
-                            System.out.printf("%g\n", delta[s]);
+                            System.out.printf("%.9f\n",delta[s]);
                         }
                     }
 
