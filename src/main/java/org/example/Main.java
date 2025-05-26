@@ -39,10 +39,10 @@ public class Main {
 
         ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
 
-        BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, new ProgressLogger());
+        BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 1, new ProgressLogger());
         centrality.compute();
 
-        write_nums_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
+        //write_nums_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
            
         /*
         var g = new it.unimi.dsi.webgraph.ArrayListMutableGraph();
