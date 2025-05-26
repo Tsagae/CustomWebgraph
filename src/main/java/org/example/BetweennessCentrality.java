@@ -227,7 +227,7 @@ public class BetweennessCentrality {
                     final int start = cutPoints.getInt(d);
                     final int end = cutPoints.getInt(d + 1);
 
-                    for(int pos = start; pos < end; pos++) {
+                    for(int pos = end -1; pos > start; pos--) {
                         final int node = queue.getInt(pos);
                         final double sigmaNode = sigma[node];
                         final LazyIntIterator succ = graph.successors(node);
