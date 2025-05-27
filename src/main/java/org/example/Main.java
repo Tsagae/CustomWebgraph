@@ -8,6 +8,7 @@ import it.unimi.dsi.webgraph.algo.GeometricCentralities;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -22,7 +23,6 @@ public class Main {
 
 
     private static void betweenness_main(String[] args) throws IOException, InterruptedException {
-       
         String graphPath = args[1];
         var split = graphPath.split("/");
         var graphName = split[split.length - 1];
@@ -42,7 +42,7 @@ public class Main {
         BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, new ProgressLogger());
         centrality.compute();
 
-        write_nums_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
+        write_doubles_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
            
         /*
         var g = new it.unimi.dsi.webgraph.ArrayListMutableGraph();
@@ -101,7 +101,7 @@ public class Main {
 
         var created = new File(BASE_PATH).mkdir();
         if (!created) {
-            throw new IOException("Couldn't create directory. The directory may already exist");
+            System.out.println("The directory already exists");
         }
 
         ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
@@ -109,10 +109,10 @@ public class Main {
         GeometricCentralities centralities = new GeometricCentralities(g, 0, new ProgressLogger());
         centralities.compute();
 
-        write_nums_to_file("closeness", Arrays.stream(centralities.closeness).boxed());
-        write_nums_to_file("lin", Arrays.stream(centralities.lin).boxed());
-        write_nums_to_file("exponential", Arrays.stream(centralities.exponential).boxed());
-        write_nums_to_file("harmonic", Arrays.stream(centralities.harmonic).boxed());
+        write_doubles_to_file("closeness", Arrays.stream(centralities.closeness).boxed());
+        write_doubles_to_file("lin", Arrays.stream(centralities.lin).boxed());
+        write_doubles_to_file("exponential", Arrays.stream(centralities.exponential).boxed());
+        write_doubles_to_file("harmonic", Arrays.stream(centralities.harmonic).boxed());
         write_nums_to_file("reachable", Arrays.stream(centralities.reachable).boxed());
 
 		/*
@@ -140,6 +140,16 @@ public class Main {
 		}
 		*/
         System.out.println("Done");
+    }
+
+
+    private static void write_doubles_to_file(String fileName, Stream<Double> numsIter) throws IOException {
+        var sb = new StringBuilder();
+        numsIter.forEach((item) -> {
+            sb.append(String.format("%.20f", new BigDecimal(item)));
+            sb.append("\n");
+        });
+        write_to_file(fileName, sb.toString());
     }
 
 
