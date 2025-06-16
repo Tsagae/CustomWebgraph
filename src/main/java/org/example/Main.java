@@ -1,8 +1,10 @@
 package org.example;
 
 import it.unimi.dsi.logging.ProgressLogger;
+import it.unimi.dsi.webgraph.ArrayListMutableGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.algo.GeometricCentralities;
 
 import java.io.File;
@@ -18,6 +20,7 @@ public class Main {
     static String BASE_PATH;
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        //geometric_main(args);
         betweenness_main(args);
     }
 
@@ -38,11 +41,12 @@ public class Main {
         }
 
         ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
+        g = decompress_graph(g);
 
         BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, new ProgressLogger());
         centrality.compute();
 
-        write_doubles_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
+        //write_doubles_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
            
         /*
         var g = new it.unimi.dsi.webgraph.ArrayListMutableGraph();
@@ -87,6 +91,19 @@ public class Main {
         }
        */
         System.out.println("Done");
+    }
+
+    private static ImmutableGraph decompress_graph(ImmutableGraph g) {
+        var arrListGraph = new ArrayListMutableGraph();
+        var numNodes = g.numNodes();
+        arrListGraph.addNodes(numNodes);
+        for (int node = 0; node < numNodes; node++) {
+            final LazyIntIterator successors = g.successors(node);
+            for (int s; (s = successors.nextInt()) != -1; ) {
+                arrListGraph.addArc(node, s);
+            }
+        }
+        return arrListGraph.immutableView();
     }
 
     private static void geometric_main(String[] args) throws IOException, InterruptedException {
