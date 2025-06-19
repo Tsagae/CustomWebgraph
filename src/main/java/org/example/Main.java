@@ -14,14 +14,18 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class Main {
     static String BASE_PATH;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        //geometric_main(args);
-        betweenness_main(args);
+        if (Arrays.stream(args).anyMatch(Predicate.isEqual("-g"))) {
+            geometric_main(args);
+        } else if (Arrays.stream(args).anyMatch(Predicate.isEqual("-b"))) {
+            betweenness_main(args);
+        }
     }
 
 
