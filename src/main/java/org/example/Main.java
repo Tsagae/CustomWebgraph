@@ -127,7 +127,7 @@ public class Main {
 
         ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
 
-        GeometricCentralities centralities = new GeometricCentralities(g, 0, new ProgressLogger());
+        GeometricCentralities centralities = new GeometricCentralities(decompress_graph(g), 0, new ProgressLogger());
         centralities.compute();
 
         write_doubles_to_file("closeness", Arrays.stream(centralities.closeness).boxed());
