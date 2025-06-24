@@ -21,15 +21,6 @@ public class Main {
     static String BASE_PATH;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (Arrays.stream(args).anyMatch(Predicate.isEqual("-g"))) {
-            geometric_main(args);
-        } else if (Arrays.stream(args).anyMatch(Predicate.isEqual("-b"))) {
-            betweenness_main(args);
-        }
-    }
-
-
-    private static void betweenness_main(String[] args) throws IOException, InterruptedException {
         String graphPath = args[1];
         var split = graphPath.split("/");
         var graphName = split[split.length - 1];
@@ -38,18 +29,32 @@ public class Main {
         System.out.println("Graph path: " + graphPath);
         System.out.println("Graph name: " + graphName);
         System.out.println("Base path: " + BASE_PATH);
+        ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
 
+        if (Arrays.stream(args).anyMatch(Predicate.isEqual("-d"))) {
+            g = decompress_graph(g);
+        }
+        
         var created = new File(BASE_PATH).mkdir();
         if (!created) {
             System.out.println("The directory already exists");
         }
+        if (Arrays.stream(args).anyMatch(Predicate.isEqual("-g"))) {
+            geometric_main(args, g);
+        } else if (Arrays.stream(args).anyMatch(Predicate.isEqual("-b"))) {
+            betweenness_main(args, g);
+        }
+    }
 
-        ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
-        g = decompress_graph(g);
 
-        BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, new ProgressLogger());
+    private static void betweenness_main(String[] args, ImmutableGraph g) throws IOException, InterruptedException {
+        BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, null);
+        var startTime = System.currentTimeMillis();
         centrality.compute();
+        var elapsed = System.currentTimeMillis() - startTime;
+        System.out.println(elapsed / 1000);
 
+        
         //write_doubles_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
            
         /*
@@ -94,7 +99,6 @@ public class Main {
             i++;
         }
        */
-        System.out.println("Done");
     }
 
     private static ImmutableGraph decompress_graph(ImmutableGraph g) {
@@ -110,26 +114,13 @@ public class Main {
         return arrListGraph.immutableView();
     }
 
-    private static void geometric_main(String[] args) throws IOException, InterruptedException {
-        String graphPath = args[1];
-        var split = graphPath.split("/");
-        var graphName = split[split.length - 1];
-        Path currentRelativePath = Paths.get("");
-        BASE_PATH = currentRelativePath.toAbsolutePath().toString() + "/" + graphName + "_javaresults";
-        System.out.println("Graph path: " + graphPath);
-        System.out.println("Graph name: " + graphName);
-        System.out.println("Base path: " + BASE_PATH);
-
-        var created = new File(BASE_PATH).mkdir();
-        if (!created) {
-            System.out.println("The directory already exists");
-        }
-
-        ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
-
-        GeometricCentralities centralities = new GeometricCentralities(decompress_graph(g), 0, new ProgressLogger());
+    private static void geometric_main(String[] args, ImmutableGraph g) throws IOException, InterruptedException {
+        GeometricCentralities centralities = new GeometricCentralities(decompress_graph(g), 0, null);
+        var startTime = System.currentTimeMillis();
         centralities.compute();
-
+        var elapsed = System.currentTimeMillis() - startTime;
+        System.out.println(elapsed / 1000);
+        
         write_doubles_to_file("closeness", Arrays.stream(centralities.closeness).boxed());
         write_doubles_to_file("lin", Arrays.stream(centralities.lin).boxed());
         write_doubles_to_file("exponential", Arrays.stream(centralities.exponential).boxed());
