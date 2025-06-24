@@ -31,5 +31,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
-
-
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "org.example.Main"
+    }
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
