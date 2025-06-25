@@ -52,7 +52,7 @@ public class Main {
         var startTime = System.currentTimeMillis();
         centrality.compute();
         var elapsed = System.currentTimeMillis() - startTime;
-        System.out.println(elapsed / 1000);
+        System.out.println(elapsed);
 
         
         //write_doubles_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
@@ -119,7 +119,7 @@ public class Main {
         var startTime = System.currentTimeMillis();
         centralities.compute();
         var elapsed = System.currentTimeMillis() - startTime;
-        System.out.println(elapsed / 1000);
+        System.out.println(elapsed);
         /*
         write_doubles_to_file("closeness", Arrays.stream(centralities.closeness).boxed());
         write_doubles_to_file("lin", Arrays.stream(centralities.lin).boxed());
