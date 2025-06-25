@@ -120,13 +120,13 @@ public class Main {
         centralities.compute();
         var elapsed = System.currentTimeMillis() - startTime;
         System.out.println(elapsed / 1000);
-        
+        /*
         write_doubles_to_file("closeness", Arrays.stream(centralities.closeness).boxed());
         write_doubles_to_file("lin", Arrays.stream(centralities.lin).boxed());
         write_doubles_to_file("exponential", Arrays.stream(centralities.exponential).boxed());
         write_doubles_to_file("harmonic", Arrays.stream(centralities.harmonic).boxed());
         write_nums_to_file("reachable", Arrays.stream(centralities.reachable).boxed());
-
+        */
 		/*
 		var g = new it.unimi.dsi.webgraph.ArrayListMutableGraph();
 		g.addNodes(5);
