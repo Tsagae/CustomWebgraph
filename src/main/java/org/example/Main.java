@@ -34,11 +34,12 @@ public class Main {
         if (Arrays.stream(args).anyMatch(Predicate.isEqual("-d"))) {
             g = decompress_graph(g);
         }
-        
+        /*
         var created = new File(BASE_PATH).mkdir();
         if (!created) {
             System.out.println("The directory already exists");
-        }
+        } 
+        */
         if (Arrays.stream(args).anyMatch(Predicate.isEqual("-g"))) {
             geometric_main(args, g);
         } else if (Arrays.stream(args).anyMatch(Predicate.isEqual("-b"))) {
@@ -53,7 +54,6 @@ public class Main {
         centrality.compute();
         var elapsed = System.currentTimeMillis() - startTime;
         System.out.println(elapsed);
-
         
         //write_doubles_to_file("betweenness", Arrays.stream(centrality.betweenness).boxed());
            
