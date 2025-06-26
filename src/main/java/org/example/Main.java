@@ -49,7 +49,7 @@ public class Main {
 
 
     private static void betweenness_main(String[] args, ImmutableGraph g) throws IOException, InterruptedException {
-        BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, null);
+        BetweennessCentrality centrality = new org.example.BetweennessCentrality(g, 0, new ProgressLogger());
         var startTime = System.currentTimeMillis();
         centrality.compute();
         var elapsed = System.currentTimeMillis() - startTime;
@@ -115,7 +115,7 @@ public class Main {
     }
 
     private static void geometric_main(String[] args, ImmutableGraph g) throws IOException, InterruptedException {
-        GeometricCentralities centralities = new GeometricCentralities(decompress_graph(g), 0, null);
+        GeometricCentralities centralities = new GeometricCentralities(decompress_graph(g), 0, new ProgressLogger());
         var startTime = System.currentTimeMillis();
         centralities.compute();
         var elapsed = System.currentTimeMillis() - startTime;
