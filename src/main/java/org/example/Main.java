@@ -40,9 +40,9 @@ public class Main {
             System.out.println("The directory already exists");
         } 
         */
-        if (Arrays.stream(args).anyMatch(Predicate.isEqual("-g"))) {
+        if (Arrays.stream(args).anyMatch(Predicate.isEqual("--geometric"))) {
             geometric_main(args, g);
-        } else if (Arrays.stream(args).anyMatch(Predicate.isEqual("-b"))) {
+        } else if (Arrays.stream(args).anyMatch(Predicate.isEqual("--betweenness"))) {
             betweenness_main(args, g);
         }
     }
