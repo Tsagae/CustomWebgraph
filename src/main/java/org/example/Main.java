@@ -32,7 +32,9 @@ public class Main {
         ImmutableGraph g = BVGraph.load(graphPath, new ProgressLogger());
 
         if (Arrays.stream(args).anyMatch(Predicate.isEqual("-d"))) {
+            System.out.println("Decompressing graph...");
             g = decompress_graph(g);
+            System.out.println("Graph decompressed.");
         }
         /*
         var created = new File(BASE_PATH).mkdir();
@@ -115,7 +117,7 @@ public class Main {
     }
 
     private static void geometric_main(String[] args, ImmutableGraph g) throws IOException, InterruptedException {
-        GeometricCentralities centralities = new GeometricCentralities(decompress_graph(g), 0, new ProgressLogger());
+        GeometricCentralities centralities = new GeometricCentralities(g, 0, new ProgressLogger());
         var startTime = System.currentTimeMillis();
         centralities.compute();
         var elapsed = System.currentTimeMillis() - startTime;
